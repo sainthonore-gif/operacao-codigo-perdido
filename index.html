@@ -142,6 +142,51 @@ body.cinema-playing #binary{visibility:hidden!important}
 #commanderRain{opacity:.48!important}
 #commanderVideo{background:#0009!important}
 @media(max-width:700px){#cinemaStart{top:71%!important;width:68%!important;height:13%!important}}
+
+/* FIX TV: fundo do comandante nítido, sem camada escura acumulada */
+#introCommander{background-image:url('fondo-comandante-cinema.jpg')!important;background-position:center!important;background-size:cover!important;background-color:#102d4c!important}
+#introCommander .cinema-vignette{display:none!important}
+#commanderRain{opacity:.33!important}
+#commanderVideo{will-change:auto;transform:translateZ(0);backface-visibility:hidden;box-shadow:0 0 20px #2eb8ff66!important}
+body.cinema-playing #introCommander{animation:none!important}
+/* A.E.P. — AJUSTES MOBILE. A versão TV permanece intacta. */
+@media screen and (max-width:700px){
+html,body{width:100%;height:100%;overflow:hidden!important}
+.screen{width:100%;height:100dvh;padding:10px;overflow:hidden!important}
+#cinemaIntro,.cinema-scene{width:100%;height:100dvh}
+#introReady{background-image:url('fondo-inicio-hollywood.jpg')!important;background-position:center center!important;background-size:100% 100%!important;background-repeat:no-repeat!important}
+#cinemaStart{position:absolute!important;left:50%!important;top:72%!important;transform:translate(-50%,-50%)!important;width:75%!important;height:15%!important;min-height:55px!important;z-index:20!important;pointer-events:auto!important}
+#introAlert{background-position:center!important;background-size:cover!important}
+#introAlert .cinema-content{width:94%;padding:15px!important}
+#introAlert .cinema-headline{font-size:clamp(30px,8vw,48px)!important}
+#introCommander{background-position:center center!important;background-size:cover!important}
+#commanderVideo{width:auto!important;max-width:90vw!important;height:auto!important;max-height:76dvh!important;object-fit:contain!important}
+#commanderTag{left:4%!important;bottom:9%!important;font-size:11px!important}
+#skipCommander{right:3%!important;bottom:2%!important}
+.world{background-position:center center!important;background-size:cover!important}
+.destruction-title{top:25%!important;width:94vw!important;font-size:clamp(20px,6vw,32px)!important;line-height:1.15!important}
+body:has(#stage1:not(.hidden)) .timer{top:43%!important;width:82vw!important;min-width:0!important;padding:10px!important}
+body:has(#stage1:not(.hidden)) #clock{font-size:clamp(34px,9vw,54px)!important}
+#sixEntry{top:57%!important;width:90vw!important;padding:14px!important}
+#sixEntry .entry input{font-size:30px!important;letter-spacing:.12em!important}
+#sixEntry button{font-size:15px!important;padding:11px 15px!important}
+#stage2.panel{width:94vw!important;max-width:94vw!important;max-height:76dvh!important;padding:12px!important;gap:4px!important;overflow-y:auto!important}
+#stage2 h1{font-size:clamp(24px,7vw,38px)!important}
+#stage2 h2{font-size:clamp(16px,4.5vw,24px)!important}
+#stage2 p{font-size:14px!important}
+#stage2 .timer{width:85%!important}
+#stage2 #clock{font-size:35px!important}
+#stage2 .entry{width:100%!important}
+#stage2 .entry input{font-size:27px!important;letter-spacing:.08em!important}
+#stage3.panel{width:94vw!important;max-width:94vw!important;height:auto!important;max-height:77dvh!important;padding:12px!important;gap:8px!important}
+#stage3 .victory-title{font-size:clamp(28px,8vw,42px)!important}
+#stage3 .victory-subtitle{font-size:21px!important}
+#stage3 .globe-frame{width:min(55vw,25dvh)!important;height:min(55vw,25dvh)!important}
+#stage3 .victory-footer{font-size:13px!important}
+.controls{bottom:1%!important;left:2%!important;right:2%!important;gap:5px!important}
+.controls button{font-size:10px!important;padding:7px 9px!important}
+}
+
 </style></head><body><div id="cinemaIntro" aria-label="Abertura da missão">
 <div id="introReady" class="cinema-scene active"><div class="cinema-vignette"></div><div class="cinema-content"><div class="cinema-kicker">A.E.P. · QUARTEL-GENERAL</div><div class="cinema-headline">OPERAÇÃO<br>CÓDIGO PERDIDO</div><div class="cinema-subline">TRANSMISSÃO DE EMERGÊNCIA</div><button id="cinemaStart" onclick="beginCinema()">▶ INICIAR TRANSMISSÃO</button></div></div>
 <div id="introAlert" class="cinema-scene"><div class="cinema-vignette"></div><div class="cinema-content"><div class="cinema-kicker">QUARTEL-GENERAL A.E.P.</div><div class="cinema-headline">🚨 ALERTA MÁXIMO</div><div class="cinema-subline">ESTABELECENDO CONEXÃO SEGURA...</div></div></div>
@@ -189,7 +234,7 @@ let cinemaTimer=null,cinemaStarted=false,commanderFrame=null,commanderDrops=[],c
 function setCinemaScene(id){['introReady','introAlert','introCommander'].forEach(x=>$(x).classList.toggle('active',x===id))}
 function incomingEmergencyTone(){if(!soundOn)return;for(let i=0;i<4;i++){tone(880,.16,.13,'square',i*.63);tone(660,.18,.12,'triangle',i*.63+.18)}}
 function beginCinema(){if(cinemaStarted)return;cinemaStarted=true;audio();setCinemaScene('introAlert');incomingEmergencyTone();cinemaTimer=setTimeout(playCommander,3000)}
-function playCommander(){cinemaTimer=null;setCinemaScene('introCommander');document.body.classList.add('cinema-playing');startCommanderRain();const v=$('commanderVideo');$('videoLoading').classList.remove('hidden');v.currentTime=0;v.muted=!soundOn;v.volume=1;v.play().catch(()=>{$('videoLoading').classList.add('hidden');$('videoError').classList.remove('hidden')})}
+function playCommander(){cinemaTimer=null;setCinemaScene('introCommander');document.body.classList.add('cinema-playing');startCommanderRain();const v=$('commanderVideo');$('videoLoading').classList.remove('hidden');try{if(v.readyState>=1)v.currentTime=0}catch(e){}v.muted=!soundOn;v.volume=1;v.play().catch(()=>{$('videoLoading').classList.add('hidden');$('videoError').classList.remove('hidden')})}
 function retryCommander(){$('videoError').classList.add('hidden');$('videoLoading').classList.remove('hidden');const v=$('commanderVideo');v.muted=!soundOn;v.play().catch(()=>{$('videoLoading').classList.add('hidden');$('videoError').classList.remove('hidden')})}
 function finishCinema(){clearTimeout(cinemaTimer);cinemaTimer=null;const v=$('commanderVideo');v.pause();stopCommanderRain();document.body.classList.remove('cinema-playing');$('videoLoading').classList.add('hidden');$('cinemaIntro').classList.add('hidden');if(!running&&!finished)startMission()}
 function resetCinema(){clearTimeout(cinemaTimer);cinemaTimer=null;cinemaStarted=false;const v=$('commanderVideo');v.pause();try{v.currentTime=0}catch(e){}stopCommanderRain();document.body.classList.remove('cinema-playing');$('videoLoading').classList.add('hidden');$('videoError').classList.add('hidden');setCinemaScene('introReady');$('cinemaIntro').classList.remove('hidden')}
@@ -197,6 +242,29 @@ $('commanderVideo').addEventListener('playing',()=>{$('videoLoading').classList.
 $('commanderVideo').addEventListener('waiting',()=>{if($('introCommander').classList.contains('active'))$('videoLoading').classList.remove('hidden')});
 $('commanderVideo').addEventListener('ended',finishCinema);
 $('commanderVideo').addEventListener('error',()=>{if($('introCommander').classList.contains('active'))$('videoError').classList.remove('hidden')});
-function startCommanderRain(){const c=$('commanderRain'),x=c.getContext('2d');function size(){const d=1;c.width=Math.round(innerWidth*d);c.height=Math.round(innerHeight*d);x.setTransform(d,0,0,d,0,0);commanderDrops=Array.from({length:Math.ceil(innerWidth/19)},()=>-Math.random()*60)}size();function draw(t){commanderFrame=requestAnimationFrame(draw);if(t-commanderLast<90)return;commanderLast=t;x.fillStyle='rgba(0,1,9,.13)';x.fillRect(0,0,innerWidth,innerHeight);x.font='17px monospace';commanderDrops.forEach((y,i)=>{const pos=i*19;const left=pos<innerWidth*.28,right=pos>innerWidth*.72;if(left||right){x.fillStyle=i%4===0?'#ff354e':'#27ff75';x.shadowColor=x.fillStyle;x.shadowBlur=8;x.fillText(Math.random()>.5?'1':'0',pos,y*19)}commanderDrops[i]=(y*19>innerHeight&&Math.random()>.98)?0:y+.65});x.shadowBlur=0}commanderFrame=requestAnimationFrame(draw)}
+function startCommanderRain(){
+ const c=$('commanderRain'),x=c.getContext('2d',{alpha:true});
+ // Canvas leve: somente laterais, poucos símbolos, sem rastro preto.
+ const w=Math.min(innerWidth,1920),h=Math.min(innerHeight,1080),step=38;
+ c.width=w;c.height=h;x.setTransform(w/innerWidth,0,0,h/innerHeight,0,0);
+ commanderDrops=Array.from({length:Math.ceil(innerWidth/step)},()=>Math.random()*innerHeight);
+ commanderLast=0;
+ function draw(t){
+  commanderFrame=requestAnimationFrame(draw);
+  if(t-commanderLast<220)return;
+  commanderLast=t;
+  x.clearRect(0,0,innerWidth,innerHeight);
+  x.font='16px monospace';x.shadowBlur=0;
+  commanderDrops.forEach((y,i)=>{
+   const pos=i*step;
+   if(pos<innerWidth*.25||pos>innerWidth*.75){
+    x.fillStyle=i%5===0?'#ff4056':'#43ff8b';
+    x.fillText(Math.random()>.5?'1':'0',pos,y);
+   }
+   commanderDrops[i]=(y>innerHeight+25)?-25:y+step*.45;
+  });
+ }
+ commanderFrame=requestAnimationFrame(draw);
+}
 function stopCommanderRain(){if(commanderFrame!==null)cancelAnimationFrame(commanderFrame);commanderFrame=null}
 </script></body></html>
